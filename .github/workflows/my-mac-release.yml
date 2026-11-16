@@ -64,13 +64,22 @@ jobs:
           submodules: recursive
           path: ${{ env.REPO_NAME }}
 
+      # No `brew update` / `brew upgrade`: on Intel runners Homebrew has no
+      # bottles for many formulae and upgrading rebuilt ~60 of them (LLVM
+      # included) from source for hours. Only install what is missing.
       - name: First set up.
+        timeout-minutes: 30
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          HOMEBREW_NO_INSTALL_UPGRADE: "1"
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
+          HOMEBREW_NO_INSTALL_CLEANUP: "1"
         run: |
-          sudo chown -R `whoami`:admin /usr/local/share
+          sudo chown -R `whoami`:admin /usr/local/share || true
 
-          brew update
-          brew upgrade || true
-          brew install automake libtool meson nasm ninja pkg-config
+          for f in automake libtool meson nasm ninja pkg-config; do
+            brew list --versions "$f" >/dev/null 2>&1 || brew install "$f"
+          done
 
           sudo mdutil -a -i off
           sudo xcode-select -s /Applications/Xcode.app/Contents/Developer

@@ -8,6 +8,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "window/window_peer_menu.h"
 
 #include "base/call_delayed.h"
+#include "gift_tracker/gift_tracker_box.h"
 #include "menu/menu_check_item.h"
 #include "menu/menu_mark_as_read.h"
 #include "boxes/about_box.h"
@@ -2041,6 +2042,7 @@ void Filler::fillProfileActions() {
 	addNewMembers();
 	addSendGift();
 	addSendMoney();
+	GiftTracker::FillPeerMenu(_controller, _peer, _addAction);
 	addViewStatistics();
 	addStoryArchive();
 	addManageChat();

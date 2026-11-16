@@ -998,6 +998,10 @@ PRIVATE
     export/view/export_view_settings.h
     export/view/export_view_top_bar.cpp
     export/view/export_view_top_bar.h
+    gift_tracker/gift_tracker.cpp
+    gift_tracker/gift_tracker.h
+    gift_tracker/gift_tracker_box.cpp
+    gift_tracker/gift_tracker_box.h
     history/admin_log/history_admin_log_filter.cpp
     history/admin_log/history_admin_log_filter.h
     history/admin_log/history_admin_log_inner.cpp

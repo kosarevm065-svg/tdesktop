@@ -2165,7 +2165,7 @@ mac:
     cargo add --path ../tlottie --features c-api
     cargo add --path ../wallet-engine
     buildOneArch() {
-        cargo rustc --lib --release \\
+        env -u MACOSX_DEPLOYMENT_TARGET cargo rustc --lib --release \\
             --crate-type staticlib --crate-type cdylib \\
             --target $1 \\
             --config "profile.release.opt-level='z'" \\
@@ -2180,7 +2180,7 @@ mac:
     mkdir -p $USED_PREFIX/lib $USED_PREFIX/include/tlottie $USED_PREFIX/include/wallet_engine $USED_PREFIX/src/wallet_engine
     lipo -create target/aarch64-apple-darwin/release/libtdesktop_rust.a target/x86_64-apple-darwin/release/libtdesktop_rust.a -output $USED_PREFIX/lib/libtdesktop_rust.a
     cp ../tlottie/include/tlottie.h $USED_PREFIX/include/tlottie/tlottie.h
-    cargo run --manifest-path ../wallet-engine/bindgen/cpp/bindgen/Cargo.toml --locked -- \\
+    env -u MACOSX_DEPLOYMENT_TARGET cargo run --manifest-path ../wallet-engine/bindgen/cpp/bindgen/Cargo.toml --locked -- \\
         --library --out-dir $USED_PREFIX/include/wallet_engine \\
         target/aarch64-apple-darwin/release/libtdesktop_rust.dylib
     mv $USED_PREFIX/include/wallet_engine/wallet_engine.cpp $USED_PREFIX/src/wallet_engine/wallet_engine.cpp

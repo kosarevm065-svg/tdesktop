@@ -344,17 +344,17 @@ void Export(
 		const QString &name,
 		PeerId peerId,
 		bool html) {
-	auto base = name;
-	base.replace(
+	auto fileName = name;
+	fileName.replace(
 		QRegularExpression(u"[\\\\/:*?\"<>|\\x00-\\x1F]"_q),
 		u"_"_q);
-	if (base.isEmpty()) {
-		base = u"chat"_q;
+	if (fileName.isEmpty()) {
+		fileName = u"chat"_q;
 	}
 	const auto extension = html ? u".html"_q : u".json"_q;
 	const auto folder = QStandardPaths::writableLocation(
 		QStandardPaths::DownloadLocation);
-	const auto initial = QDir(folder).filePath(base + extension);
+	const auto initial = QDir(folder).filePath(fileName + extension);
 	const auto session = &controller->session();
 	const auto weak = base::make_weak(controller);
 	FileDialog::GetWritePath(

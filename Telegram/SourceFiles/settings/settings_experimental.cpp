@@ -45,6 +45,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "info/profile/tabs/adapters/info_profile_tab_media.h"
 #include "info/profile/tabs/info_profile_tabs_host.h"
 #include "lang/lang_keys.h"
+#include "lang/lang_instance.h"
 #include "mainwindow.h"
 #include "mainwidget.h"
 #include "media/player/media_player_instance.h"
@@ -64,12 +65,120 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_menu_icons.h"
 
 #include <QtCore/QJsonDocument>
+
+#include <array>
 #include <QtGui/QGuiApplication>
 
 #include "ui/chat/chat_style.h"
 
 namespace Settings {
 namespace {
+
+// Russian texts for the experimental options. The options themselves only
+// carry English, and custom keys are not in the cloud language packs, so
+// the translation lives here and follows the interface language.
+struct RuOptionText {
+	const char *id = nullptr;
+	const char *name = nullptr;
+	const char *description = nullptr;
+};
+
+constexpr auto kRuOptionTexts = std::array{
+	RuOptionText{ "ai-apply-tone-slug", "Тон ИИ для быстрого применения", "Идентификатор тона ИИ-редактора, привязанного к горячей клавише применения на месте. Пусто — тон не привязан." },
+	RuOptionText{ "auto-scroll-inactive-chat", "Читать неактивный чат", "Отмечать новые сообщения прочитанными и прокручивать чат, даже когда окно не в фокусе." },
+	RuOptionText{ "classic-profile-scroll", "Классическая прокрутка профиля", "Возвращает прежнюю реализацию прокрутки обложки профиля." },
+	RuOptionText{ "ctrl-click-chat-new-window", "Новое окно чата по Ctrl+клику", "Открывать чат в новом окне по Ctrl+клику (Cmd+клику на macOS)." },
+	RuOptionText{ "custom-notification", "Разрешить нестандартные уведомления", "Позволяет отключить системные уведомления, даже если собственные уведомления Telegram на этой платформе работают плохо." },
+	RuOptionText{ "deadlock-detector", "Детектор зависаний", "Каждые 30 секунд проверять, что главный поток приложения отвечает." },
+	RuOptionText{ "dialogs-mute-icon", "Значок «без звука» в списке чатов", "Показывать маленький значок рядом с названием чатов с отключённым звуком." },
+	RuOptionText{ "dialogs-unread-on-top", "Непрочитанные чаты сверху", "Ставить чаты с новыми сообщениями (кроме заглушённых) сразу под закреплёнными и держать там, пока вы их не прочитаете." },
+	RuOptionText{ "disable-autoplay-next", "Не воспроизводить следующий трек", "Отключить автоматическое воспроизведение следующего аудиофайла, голосового или видеосообщения." },
+	RuOptionText{ "enable-vulkan-rhi", "Включить рендеринг через Vulkan", "Использовать Vulkan вместо OpenGL для отрисовки на видеокарте, если он доступен." },
+	RuOptionText{ "external-media-viewer", "Внешний просмотрщик медиа", "Открывать фото и видео в системном приложении вместо встроенного просмотрщика." },
+	RuOptionText{ "fast-buttons-mode", "Режим быстрых кнопок", "Нажимать кнопки встроенной клавиатуры ботов клавишами 1–9." },
+	RuOptionText{ "ffmpeg-multithread", "Многопоточное декодирование видео", "Разрешить FFmpeg декодировать видео в нескольких потоках, обычно по одному на поток процессора." },
+	RuOptionText{ "folder-favorite-link", "Кнопка «Избранная папка»", "Кнопка внизу полосы папок, открывающая ссылку tg:// или t.me/." },
+	RuOptionText{ "force-angle", "Принудительно использовать ANGLE", "Использовать ANGLE для ускорения медиа и звонков. Главное окно отрисовывается процессором." },
+	RuOptionText{ "force-compose-search-one-column", "Встроенный поиск в чатах", "Принудительно использовать встроенный поиск в чатах в одноколоночном режиме." },
+	RuOptionText{ "forum-hide-chats-list", "Скрывать список чатов в форумах", "Не показывать узкую колонку со списком чатов." },
+	RuOptionText{ "fractional-scaling-enabled", "Точное масштабирование High DPI", "Точно следовать системному масштабу интерфейса." },
+	RuOptionText{ "freetype", "Шрифтовой движок FreeType", "Использовать шрифтовой движок из Linux вместо системного." },
+	RuOptionText{ "gnotification", "GNotification", "Принудительно включить GNotification из GLib. Если выключено, определяется автоматически." },
+	RuOptionText{ "hide-ai-button", "Скрыть кнопку ИИ", "Скрыть кнопку инструментов ИИ в поле ввода сообщения." },
+	RuOptionText{ "hide-reply-button", "Скрыть кнопку «Ответить»", "Скрыть кнопку ответа в уведомлениях." },
+	RuOptionText{ "high-dpi-downscale", "Уменьшение для High DPI", "Точно следовать системному масштабу интерфейса (другой способ, обычно с лучшим качеством)." },
+	RuOptionText{ "kinetic-scroller", "Своя кинетическая прокрутка для тачпадов", "" },
+	RuOptionText{ "mac-cmd-reply-immediately", "Mac: мгновенный ответ по Cmd + ↑/↓", "Сразу отвечать на предыдущее или следующее сообщение по Cmd + ↑/↓, а не переносить сначала курсор в начало или конец поля ввода. С Shift курсор перемещается как раньше." },
+	RuOptionText{ "mac-modern-notifications", "Современные уведомления macOS", "Использовать фреймворк UserNotifications для системных уведомлений (macOS 10.14+). При первом запуске система спросит разрешение. После включения он остаётся в работе, даже если опцию выключить: macOS перестаёт показывать старые уведомления." },
+	RuOptionText{ "moderate-common-groups", "Блокировать пользователей сразу в нескольких группах", "" },
+	RuOptionText{ "new-windows-size-as-first", "Размер новых окон чатов", "Открывать новые окна с размером главного окна." },
+	RuOptionText{ "prefer-ipv6", "Предпочитать IPv6", "Использовать IPv6, если он доступен. Требует включённой опции «Пробовать подключаться через IPv6»." },
+	RuOptionText{ "profile-media-tabs", "Медиа в профиле вкладками", "Заменить кнопки общих медиа в профиле полосой вкладок со списками прямо в профиле. В разработке." },
+	RuOptionText{ "profile-media-tabs-expanded", "Раздельные вкладки фото и видео", "Показывать в профиле отдельные вкладки для фото и для видео вместо одной общей вкладки медиа." },
+	RuOptionText{ "show-channel-joined-below-about", "Дата вступления в канал в профиле", "Показывать под описанием канала, когда вы в него вступили." },
+	RuOptionText{ "show-peer-id-below-about", "ID в профиле", "Показывать ID из API под описанием или «О себе». Добавлять ID контактов в экспорт данных." },
+	RuOptionText{ "skip-url-scheme-register", "Не регистрировать схему tg://", "Не перерегистрировать схему ссылок tg:// при автообновлении." },
+	RuOptionText{ "tabbed-panel-show-on-click", "Панель эмодзи по клику", "Открывать панель эмодзи, стикеров и GIF только по клику." },
+	RuOptionText{ "touchbar-disabled", "Отключить Touch Bar (только macOS)", "" },
+	RuOptionText{ "translate-url-template", "Шаблон ссылки переводчика", "Шаблон URL для своего сервиса перевода. Поддерживает %q — текст, %f — исходный язык, %t — язык перевода." },
+	RuOptionText{ "uncolored_quote", "Цитаты без цвета", "Не раскрашивать цитаты, превью ссылок, игры и т.п." },
+	RuOptionText{ "unlimited-message-width", "Неограниченная ширина сообщений", "Разрешить облачкам с текстом растягиваться шире стандартного максимума." },
+	RuOptionText{ "unlimited-recent-stickers", "Неограниченные недавние стикеры", "Показывать столько недавних стикеров, сколько отдаёт сервер." },
+	RuOptionText{ "use-modern-chat-view", "Новый вид чата", "Открывать чаты через новый раздел." },
+	RuOptionText{ "use-qt-rhi", "Рендеринг через Qt RHI", "Отрисовывать главное окно видеокартой, а не процессором." },
+	RuOptionText{ "use-small-msg-bubble-radius", "Маленькое скругление облачков", "Делает большинство облачков сообщений почти квадратными." },
+	RuOptionText{ "view-profile-in-chats-list-context-menu", "Пункт «Открыть профиль»", "Добавить «Открыть профиль» в контекстное меню списка чатов." },
+	RuOptionText{ "webview-debug-enabled", "Отладка WebView", "Правый клик → «Inspect» в окнах WebView (на macOS запустите Safari и откройте через меню «Разработка»)." },
+	RuOptionText{ "webview-legacy-edge", "Принудительно старый Edge WebView", "Пропустить проверку CoreWebView2 и использовать старый Edge WebView в Windows." },
+};
+
+[[nodiscard]] bool UseRussian() {
+	const auto &instance = Lang::GetInstance();
+	return instance.id().startsWith(u"ru"_q)
+		|| instance.baseId().startsWith(u"ru"_q);
+}
+
+[[nodiscard]] const RuOptionText *LookupRuOption(const QString &id) {
+	if (!UseRussian()) {
+		return nullptr;
+	}
+	for (const auto &entry : kRuOptionTexts) {
+		if (id == QLatin1String(entry.id)) {
+			return &entry;
+		}
+	}
+	return nullptr;
+}
+
+[[nodiscard]] QString RuOr(const QString &english, const char *russian) {
+	return UseRussian() ? QString::fromUtf8(russian) : english;
+}
+
+template <typename Option>
+[[nodiscard]] QString OptionName(const Option &option) {
+	if (const auto ru = LookupRuOption(option.id())) {
+		return QString::fromUtf8(ru->name);
+	}
+	return option.name().isEmpty() ? option.id() : option.name();
+}
+
+template <typename Option>
+[[nodiscard]] QString OptionDescription(const Option &option) {
+	if (const auto ru = LookupRuOption(option.id())) {
+		return QString::fromUtf8(ru->description);
+	}
+	return option.description();
+}
+
+// Both languages stay searchable, so English names still find options.
+template <typename Option>
+[[nodiscard]] QString OptionSearchable(const Option &option) {
+	auto result = OptionName(option) + ' ' + OptionDescription(option);
+	if (LookupRuOption(option.id())) {
+		result += ' ' + option.name() + ' ' + option.description();
+	}
+	return result;
+}
 
 const auto kOptionsClipboardPrefix = u"tdesktop-flags:"_q;
 
@@ -134,30 +243,39 @@ void ImportOptionsBox(
 		not_null<Ui::GenericBox*> box,
 		not_null<Window::Controller*> window,
 		Fn<void()> imported) {
-	box->setTitle(rpl::single(u"Import experimental settings"_q));
+	box->setTitle(rpl::single(RuOr(
+		u"Import experimental settings"_q,
+		"Импорт экспериментальных настроек")));
 
 	const auto field = box->addRow(object_ptr<Ui::InputField>(
 		box,
 		st::defaultInputField,
 		Ui::InputField::Mode::NoNewlines,
-		rpl::single(u"Experimental settings code"_q)));
+		rpl::single(RuOr(
+			u"Experimental settings code"_q,
+			"Код экспериментальных настроек"))));
 
 	const auto save = [=] {
 		const auto result = ImportOptions(field->getLastText());
 		if (result == ImportResult::Invalid) {
 			field->showError();
-			box->showToast(u"This is not a valid "
-				"experimental settings code."_q);
+			box->showToast(RuOr(
+				u"This is not a valid experimental settings code."_q,
+				"Это неверный код экспериментальных настроек."));
 			return;
 		} else if (result == ImportResult::Unsupported) {
 			field->showError();
-			box->showToast(u"Experimental settings code is valid"
-				", but data format is not supported."_q);
+			box->showToast(RuOr(
+				u"Experimental settings code is valid"
+				", but data format is not supported."_q,
+				"Код верный, но формат данных не поддерживается."));
 			return;
 		}
 		imported();
 		box->closeBox();
-		window->showToast(u"Experimental settings imported."_q);
+		window->showToast(RuOr(
+			u"Experimental settings imported."_q,
+			"Экспериментальные настройки импортированы."));
 	};
 	field->submits() | rpl::on_next(save, field->lifetime());
 
@@ -184,10 +302,14 @@ void SetupCopyDeepLink(
 		*menu = base::make_unique_q<Ui::PopupMenu>(
 			button,
 			st::popupMenuWithIcons);
-		(*menu)->addAction(u"Copy deep link"_q, [=] {
+		(*menu)->addAction(RuOr(
+			u"Copy deep link"_q,
+			"Копировать ссылку на настройку"), [=] {
 			TextUtilities::SetClipboardText({ link });
 			window->showToast({
-				.text = { u"Deep link copied to clipboard."_q },
+				.text = { RuOr(
+					u"Deep link copied to clipboard."_q,
+					"Ссылка скопирована в буфер обмена.") },
 				.iconLottie = u"toast/voip_invite"_q,
 				.iconLottieSize = st::toastLottieIconSize,
 			});
@@ -256,8 +378,8 @@ QString AddOption(
 		rpl::producer<> reloadOptionsRequests,
 		rpl::producer<QString> query,
 		Fn<void(const QString&, not_null<QWidget*>)> registerHighlight) {
-	const auto name = option.name().isEmpty() ? option.id() : option.name();
-	const auto &description = option.description();
+	const auto name = OptionName(option);
+	const auto description = OptionDescription(option);
 
 	const auto wrap = container->add(
 		object_ptr<Ui::SlideWrap<Ui::VerticalLayout>>(
@@ -320,7 +442,7 @@ QString AddOption(
 		}
 	}, inner->lifetime());
 
-	const auto searchable = name + ' ' + description;
+	const auto searchable = OptionSearchable(option);
 	const auto terms = SearchWords(searchable);
 	std::move(
 		query
@@ -340,10 +462,8 @@ QString AddFavoriteLinkButton(
 		Fn<void(const QString&, not_null<QWidget*>)> registerHighlight) {
 	const auto option = &base::options::lookup<QString>(
 		Window::kOptionFolderFavoriteLink);
-	const auto name = option->name().isEmpty()
-		? option->id()
-		: option->name();
-	const auto &description = option->description();
+	const auto name = OptionName(*option);
+	const auto searchable = OptionSearchable(*option);
 
 	const auto wrap = container->add(
 		object_ptr<Ui::SlideWrap<Ui::VerticalLayout>>(
@@ -375,7 +495,6 @@ QString AddFavoriteLinkButton(
 
 	SetupCopyDeepLink(window, button, option->id());
 
-	const auto searchable = name + ' ' + description;
 	const auto terms = SearchWords(searchable);
 	std::move(
 		query
@@ -443,7 +562,7 @@ void SetupExperimental(
 	};
 	const auto categories = std::vector<Category>{
 		{
-			u"Chats"_q,
+			RuOr(u"Chats"_q, "Чаты"),
 			{
 				Dialogs::kOptionForumHideChatsList,
 				Dialogs::kOptionDialogsUnreadOnTop,
@@ -455,7 +574,7 @@ void SetupExperimental(
 			}
 		},
 		{
-			u"Messages"_q,
+			RuOr(u"Messages"_q, "Сообщения"),
 			{
 				Ui::kOptionUseSmallMsgBubbleRadius,
 				HistoryView::kOptionUnlimitedMessageWidth,
@@ -466,7 +585,7 @@ void SetupExperimental(
 			}
 		},
 		{
-			u"Profile"_q,
+			RuOr(u"Profile"_q, "Профиль"),
 			{
 				Window::kOptionViewProfileInChatsListContextMenu,
 				Info::Profile::kOptionShowPeerIdBelowAbout,
@@ -476,14 +595,14 @@ void SetupExperimental(
 			}
 		},
 		{
-			u"Stickers and emoji"_q,
+			RuOr(u"Stickers and emoji"_q, "Стикеры и эмодзи"),
 			{
 				ChatHelpers::kOptionTabbedPanelShowOnClick,
 				ChatHelpers::kOptionUnlimitedRecentStickers,
 			}
 		},
 		{
-			u"Media"_q,
+			RuOr(u"Media"_q, "Медиа"),
 			{
 				Media::Player::kOptionDisableAutoplayNext,
 				Window::kOptionExternalMediaViewer,
@@ -491,7 +610,7 @@ void SetupExperimental(
 			}
 		},
 		{
-			u"Notifications"_q,
+			RuOr(u"Notifications"_q, "Уведомления"),
 			{
 				Window::Notifications::kOptionHideReplyButton,
 				Window::Notifications::kOptionCustomNotification,
@@ -500,7 +619,7 @@ void SetupExperimental(
 			}
 		},
 		{
-			u"Interface"_q,
+			RuOr(u"Interface"_q, "Интерфейс"),
 			{
 				Core::kOptionFractionalScalingEnabled,
 				Core::kOptionHighDpiDownscale,
@@ -516,7 +635,7 @@ void SetupExperimental(
 			}
 		},
 		{
-			u"System"_q,
+			RuOr(u"System"_q, "Система"),
 			{
 				MTP::details::kOptionPreferIPv6,
 				Core::kOptionSkipUrlSchemeRegister,
@@ -582,7 +701,7 @@ void SetupExperimental(
 		});
 	}
 
-	addCategory(u"Other"_q, [&](
+	addCategory(RuOr(u"Other"_q, "Другое"), [&](
 			not_null<Ui::VerticalLayout*> inner,
 			std::vector<QString> &searchable) {
 		if (base::options::lookup<bool>(kOptionFastButtonsMode).value()) {
@@ -614,12 +733,14 @@ rpl::producer<QString> Experimental::title() {
 void Experimental::fillTopBarMenu(const Ui::Menu::MenuCallback &addAction) {
 	const auto window = &controller()->window();
 	addAction(
-		u"Export"_q,
+		RuOr(u"Export"_q, "Экспорт"),
 		[=] {
 			TextUtilities::SetClipboardText(
 				{ EncodeOptionsToText(base::options::serialize()) });
 			window->showToast({
-				.text = { u"Experimental settings code copied to clipboard."_q },
+				.text = { RuOr(
+					u"Experimental settings code copied to clipboard."_q,
+					"Код экспериментальных настроек скопирован.") },
 				.iconLottie = u"toast/copy"_q,
 				.iconLottieSize = st::toastLottieIconSize,
 			});
@@ -629,7 +750,7 @@ void Experimental::fillTopBarMenu(const Ui::Menu::MenuCallback &addAction) {
 		_reloadOptionsRequests.fire({});
 	};
 	addAction(
-		u"Import"_q,
+		RuOr(u"Import"_q, "Импорт"),
 		[=] {
 			const auto result = ImportOptions(
 				QGuiApplication::clipboard()->text());
@@ -637,13 +758,17 @@ void Experimental::fillTopBarMenu(const Ui::Menu::MenuCallback &addAction) {
 				window->show(Box(ImportOptionsBox, window, reload));
 				return;
 			} else if (result == ImportResult::Unsupported) {
-				window->showToast(u"Experimental settings code is valid"
-					", but data format is not supported."_q);
+				window->showToast(RuOr(
+					u"Experimental settings code is valid"
+					", but data format is not supported."_q,
+					"Код верный, но формат данных не поддерживается."));
 				return;
 			}
 			reload();
-			window->showToast(u"Experimental settings imported "
-				"from code in clipboard."_q);
+			window->showToast(RuOr(
+				u"Experimental settings imported "
+				"from code in clipboard."_q,
+				"Экспериментальные настройки импортированы из буфера обмена."));
 		},
 		&st::menuIconImportTheme);
 }

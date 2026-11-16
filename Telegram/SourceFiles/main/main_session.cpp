@@ -61,6 +61,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "support/support_helper.h"
 #include "lang/lang_keys.h"
 #include "core/application.h"
+#include "gift_tracker/gift_tracker.h"
 #include "tgw/tgw_storage.h"
 #include "ui/text/text_utilities.h"
 #include "ui/layers/generic_box.h"
@@ -274,6 +275,7 @@ Session::Session(
 
 	Core::App().downloadManager().trackSession(this);
 	Tgw::StartStorage(this);
+	GiftTracker::Start(this);
 
 	appConfig().value(
 	) | rpl::on_next([=] {

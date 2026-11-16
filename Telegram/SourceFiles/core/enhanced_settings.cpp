@@ -374,6 +374,8 @@ namespace EnhancedSettings {
 		settings.insert(qsl("screenshot_mode"), GetEnhancedBool("screenshot_mode"));
 		settings.insert(qsl("update_url"), GetEnhancedString("update_url"));
 		settings.insert(qsl("send_unformatted"), GetEnhancedBool("send_unformatted"));
+		settings.insert(qsl("gift_tracker_off"), GetEnhancedBool("gift_tracker_off"));
+		settings.insert(qsl("gift_tracker_silent"), GetEnhancedBool("gift_tracker_silent"));
 
 		auto document = QJsonDocument();
 		document.setObject(settings);

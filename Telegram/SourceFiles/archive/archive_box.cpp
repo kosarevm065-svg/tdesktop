@@ -46,6 +46,7 @@ namespace ChatArchive {
 namespace {
 
 constexpr auto kPageSize = 200;
+constexpr auto kOpenOrder = 1 << 20;
 constexpr auto kMediaLimits = std::array{ 0, 1, 5, 20, 100 };
 
 [[nodiscard]] QString FormatDateTime(TimeId date) {
@@ -227,8 +228,8 @@ constexpr auto kMediaLimits = std::array{ 0, 1, 5, 20, 100 };
 		default: continue;
 		}
 		++index;
-		events.push_back({ from, 2 * 100000 - index, open });
-		events.push_back({ till, index, close });
+		events.push_back({ from, kOpenOrder + index, open });
+		events.push_back({ till, kOpenOrder - index, close });
 	}
 	ranges::sort(events, [](const Event &a, const Event &b) {
 		return (a.position != b.position)

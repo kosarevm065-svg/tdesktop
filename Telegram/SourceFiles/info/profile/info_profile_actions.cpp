@@ -13,6 +13,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "api/api_report.h"
 #include "api/api_statistics.h"
 #include "apiwrap.h"
+#include "archive/archive_profiles.h"
 #include "base/call_delayed.h"
 #include "base/event_filter.h"
 #include "base/options.h"
@@ -1725,6 +1726,11 @@ Section DetailsFiller::makeInfo() {
 			AboutWithAdvancedValue(user));
 		setupAboutContextMenu(about.text, AboutWithAdvancedValue(user));
 		SetupAboutPeerIdDrag(about.text, user);
+		ProfileSnapshots::AddSavedInfoLines(controller, user, [&](
+				rpl::producer<QString> label,
+				rpl::producer<TextWithEntities> text) {
+			return addInfoLine(std::move(label), std::move(text)).text;
+		});
 
 		const auto usernameLine = addInfoOneLine(
 			UsernamesSubtext(_peer, tr::lng_info_username_label()),
@@ -1917,6 +1923,11 @@ Section DetailsFiller::makeInfo() {
 		if (!_topic) {
 			setupAboutContextMenu(about.text, AboutWithAdvancedValue(_peer));
 			SetupAboutPeerIdDrag(about.text, _peer);
+			ProfileSnapshots::AddSavedInfoLines(controller, _peer, [&](
+					rpl::producer<QString> label,
+					rpl::producer<TextWithEntities> text) {
+				return addInfoLine(std::move(label), std::move(text)).text;
+			});
 		}
 	}
 	raw->toggleOn(tracker.atLeastOneShownValue());

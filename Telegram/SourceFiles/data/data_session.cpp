@@ -11,6 +11,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_session_settings.h"
 #include "main/main_app_config.h"
 #include "apiwrap.h"
+#include "archive/archive_store.h"
 #include "mainwidget.h"
 #include "api/api_bot.h"
 #include "api/api_premium.h"
@@ -3214,6 +3215,7 @@ void Session::registerMessage(not_null<HistoryItem*> item) {
 	if (!peerIsChannel(peerId) && IsServerMsgId(itemId)) {
 		_nonChannelMessages.emplace(itemId, item);
 	}
+	ChatArchive::Registered(item);
 }
 
 void Session::registerMessageTTL(TimeId when, not_null<HistoryItem*> item) {

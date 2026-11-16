@@ -2630,6 +2630,12 @@ PRIVATE
     window/themes/window_themes_generate_name.h
     apiwrap.cpp
     apiwrap.h
+    archive/archive_box.cpp
+    archive/archive_box.h
+    archive/archive_profiles.cpp
+    archive/archive_profiles.h
+    archive/archive_store.cpp
+    archive/archive_store.h
     config.h
     facades.cpp
     facades.h

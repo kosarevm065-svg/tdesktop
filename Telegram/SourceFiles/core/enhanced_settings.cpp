@@ -319,6 +319,10 @@ namespace EnhancedSettings {
 		settings.insert(qsl("screenshot_mode"), false);
 		settings.insert(qsl("update_url"), "");
 		settings.insert(qsl("send_unformatted"), false);
+		settings.insert(qsl("chat_archive"), false);
+		settings.insert(qsl("chat_archive_media_mb"), 0);
+		settings.insert(qsl("profile_snapshots"), true);
+		settings.insert(qsl("profile_tme_fallback"), true);
 
 		auto document = QJsonDocument();
 		document.setObject(settings);
@@ -376,6 +380,10 @@ namespace EnhancedSettings {
 		settings.insert(qsl("send_unformatted"), GetEnhancedBool("send_unformatted"));
 		settings.insert(qsl("gift_tracker_off"), GetEnhancedBool("gift_tracker_off"));
 		settings.insert(qsl("gift_tracker_silent"), GetEnhancedBool("gift_tracker_silent"));
+		settings.insert(qsl("chat_archive"), GetEnhancedBool("chat_archive"));
+		settings.insert(qsl("chat_archive_media_mb"), GetEnhancedInt("chat_archive_media_mb"));
+		settings.insert(qsl("profile_snapshots"), GetEnhancedBool("profile_snapshots"));
+		settings.insert(qsl("profile_tme_fallback"), GetEnhancedBool("profile_tme_fallback"));
 
 		auto document = QJsonDocument();
 		document.setObject(settings);

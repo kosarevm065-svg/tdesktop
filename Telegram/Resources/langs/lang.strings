@@ -6987,6 +6987,21 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 "lng_admin_log_no_events_text" = "No notable actions taken by the members and admins of this group in the last 48 hours.";
 "lng_admin_log_no_events_text_channel" = "No notable actions taken\nby the admins of this channel\nin the last 48 hours.";
 
+"lng_admin_log_local_toggle" = "Save history locally";
+"lng_admin_log_local_about" = "Telegram keeps recent actions only for 48 hours. Turn this on to save them on this device and scroll further back.";
+"lng_admin_log_local_waiting" = "Local history will start after the first sync.";
+"lng_admin_log_local_since" = "Local history since {date}";
+"lng_admin_log_local_paused" = "Saving is paused for this chat.";
+"lng_admin_log_local_gaps" = "Possible gaps (the app was offline for more than 48 hours): {list}";
+"lng_settings_admin_log_local" = "Recent actions history";
+"lng_settings_admin_log_local_enable" = "Keep recent actions locally";
+"lng_settings_admin_log_local_limit" = "Events per chat";
+"lng_settings_admin_log_local_unlimited" = "Unlimited";
+"lng_settings_admin_log_local_clear" = "Clear local history";
+"lng_settings_admin_log_local_clear_sure" = "Delete all locally saved recent actions for this account?";
+"lng_settings_admin_log_local_cleared" = "Local history cleared.";
+"lng_settings_admin_log_local_about" = "Telegram keeps recent actions only for 48 hours. When enabled, the action log of channels and groups where you are an admin is fetched every 2 hours and saved encrypted on this device. Turn it on for each chat in its Recent actions.";
+
 "lng_admin_log_empty_text" = "Empty";
 "lng_admin_log_changed_title_channel" = "{from} changed channel name to «{title}»";
 "lng_admin_log_changed_description_group" = "{from} edited group description:";

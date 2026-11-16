@@ -39,6 +39,7 @@ https://github.com/TDesktop-x64/tdesktop/blob/dev/LEGAL
 #include "styles/style_settings.h"
 #include "apiwrap.h"
 #include "api/api_blocked_peers.h"
+#include "history/admin_log/history_admin_log_local_ui.h"
 
 namespace Settings {
 
@@ -608,6 +609,7 @@ namespace Settings {
 		SetupEnhancedButton(content);
 		SetupEnhancedVoiceChat(content);
 		SetupEnhancedOthers(controller, content);
+		AdminLog::SetupLocalHistorySettings(controller, content);
 
 		Ui::ResizeFitChild(this, content);
 	}

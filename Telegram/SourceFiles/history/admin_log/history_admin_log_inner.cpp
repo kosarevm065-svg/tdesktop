@@ -17,6 +17,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/history_item_text.h"
 #include "history/admin_log/history_admin_log_section.h"
 #include "history/admin_log/history_admin_log_filter.h"
+#include "history/admin_log/history_admin_log_local.h"
 #include "history/view/history_view_context_menu.h"
 #include "history/view/history_view_message.h"
 #include "history/view/history_view_reply.h"
@@ -458,6 +459,10 @@ InnerWidget::InnerWidget(
 
 	_newEventsTimer.setCallback([=] { requestNewEvents(); });
 	_newEventsTimer.callEach(kNewEventsCheckInterval);
+
+	if (const auto local = LocalHistory::Find(&session())) {
+		local->syncNow(_channel);
+	}
 }
 
 bool InnerWidget::myView(not_null<const HistoryView::Element*> view) const {
@@ -803,6 +808,7 @@ void InnerWidget::clearAndRequestLog() {
 	_filterChanged = true;
 	_upLoaded = false;
 	_downLoaded = true;
+	_serverUpExhausted = false;
 	resetNewEventsCount();
 	updateMinMaxIds();
 	preloadMore(Direction::Up);
@@ -1180,6 +1186,7 @@ void InnerWidget::restoreState(not_null<SectionMemento*> memento) {
 	_eventDates = memento->takeEventDates();
 	_upLoaded = memento->upLoaded();
 	_downLoaded = memento->downLoaded();
+	_serverUpExhausted = false;
 	_filterChanged = false;
 	updateMinMaxIds();
 	computeDeleteGroups();
@@ -1190,6 +1197,22 @@ void InnerWidget::preloadMore(Direction direction) {
 	auto &requestId = (direction == Direction::Up) ? _preloadUpRequestId : _preloadDownRequestId;
 	auto &loadedFlag = (direction == Direction::Up) ? _upLoaded : _downLoaded;
 	if (requestId != 0 || loadedFlag) {
+		return;
+	}
+	const auto up = (direction == Direction::Up);
+	if (up && _serverUpExhausted) {
+		// The server has nothing older, continue with the local history.
+		if (!_localUpPending) {
+			_localUpPending = true;
+			crl::on_main(this, [=] {
+				_localUpPending = false;
+				if (!_upLoaded && _serverUpExhausted && !_preloadUpRequestId) {
+					addEvents(
+						Direction::Up,
+						mergeLocalEvents({}, _minId, kEventsPerPage));
+				}
+			});
+		}
 		return;
 	}
 
@@ -1215,13 +1238,75 @@ void InnerWidget::preloadMore(Direction direction) {
 		_channel->owner().processUsers(results.vusers());
 		_channel->owner().processChats(results.vchats());
 		if (!loadedFlag) {
-			addEvents(direction, results.vevents().v);
+			const auto &events = results.vevents().v;
+			if (up && hasLocalEvents()) {
+				if (events.isEmpty()) {
+					_serverUpExhausted = true;
+				}
+				addEvents(direction, mergeLocalEvents(events, maxId, perPage));
+			} else {
+				addEvents(direction, events);
+			}
 		}
-	}).fail([this, &requestId, &loadedFlag] {
+	}).fail([=, &requestId, &loadedFlag] {
 		requestId = 0;
+		if (up && !loadedFlag && hasLocalEvents()) {
+			_serverUpExhausted = true;
+			addEvents(direction, mergeLocalEvents({}, maxId, perPage));
+			return;
+		}
 		loadedFlag = true;
 		update();
 	}).send();
+}
+
+bool InnerWidget::hasLocalEvents() const {
+	const auto local = LocalHistory::Find(&session());
+	return local
+		&& LocalHistory::MasterEnabled()
+		&& local->hasEvents(_channel);
+}
+
+QVector<MTPChannelAdminLogEvent> InnerWidget::mergeLocalEvents(
+		const QVector<MTPChannelAdminLogEvent> &server,
+		uint64 maxId,
+		int limit) {
+	const auto local = LocalHistory::Find(&session());
+	if (!local || !LocalHistory::MasterEnabled()) {
+		return server;
+	}
+	const auto stored = local->query(
+		_channel,
+		maxId,
+		_filter,
+		_searchQuery,
+		limit);
+	if (stored.isEmpty()) {
+		return server;
+	}
+	// Newest first, server copies win over the stored ones.
+	auto byId = std::map<
+		uint64,
+		const MTPChannelAdminLogEvent*,
+		std::greater<>>();
+	for (const auto &event : server) {
+		byId.emplace(event.data().vid().v, &event);
+	}
+	for (const auto &event : stored) {
+		byId.emplace(event.data().vid().v, &event);
+	}
+	auto result = QVector<MTPChannelAdminLogEvent>();
+	result.reserve(std::min(int(byId.size()), limit));
+	for (const auto &[id, event] : byId) {
+		if (!_filterChanged && _eventIds.contains(id)) {
+			continue;
+		}
+		result.push_back(*event);
+		if (result.size() >= limit) {
+			break;
+		}
+	}
+	return result;
 }
 
 void InnerWidget::requestNewEvents() {

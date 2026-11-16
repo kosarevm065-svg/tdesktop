@@ -291,6 +291,11 @@ private:
 		uint64 maxId,
 		std::shared_ptr<QVector<MTPChannelAdminLogEvent>> accumulated);
 	void flushNewEvents(const QVector<MTPChannelAdminLogEvent> &events);
+	[[nodiscard]] bool hasLocalEvents() const;
+	[[nodiscard]] QVector<MTPChannelAdminLogEvent> mergeLocalEvents(
+		const QVector<MTPChannelAdminLogEvent> &server,
+		uint64 maxId,
+		int limit);
 
 	struct ScrollAnchor {
 		Element *view = nullptr;
@@ -461,6 +466,9 @@ private:
 	bool _upLoaded = true;
 	bool _downLoaded = true;
 	bool _filterChanged = false;
+	// Local admin log history continues after the server one ends.
+	bool _serverUpExhausted = false;
+	bool _localUpPending = false;
 	Ui::Text::String _emptyText;
 
 	MouseAction _mouseAction = MouseAction::None;

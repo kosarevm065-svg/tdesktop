@@ -88,11 +88,15 @@ private:
 	void updateScrollDownVisibility();
 	void updateScrollDownPosition();
 	void startScrollDownButtonAnimation(bool shown);
+	void setupLocalHistoryBar(not_null<ChannelData*> channel);
+	void updateControlsGeometry();
+	[[nodiscard]] int topSkip() const;
 
 	object_ptr<Ui::ElasticScroll> _scroll;
 	QPointer<InnerWidget> _inner;
 	object_ptr<FixedBar> _fixedBar;
 	object_ptr<Ui::PlainShadow> _fixedBarShadow;
+	object_ptr<Ui::RpWidget> _localBar = { nullptr };
 	object_ptr<Ui::FlatButton> _settingsFilter;
 	object_ptr<Ui::IconButton> _whatIsThis;
 	object_ptr<Ui::JumpDownButton> _scrollDown;

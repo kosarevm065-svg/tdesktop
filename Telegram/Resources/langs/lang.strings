@@ -9335,4 +9335,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 "lng_profile_snapshot_photo" = "Profile photo";
 "lng_profile_snapshot_open_photo" = "Show saved photo";
 "lng_profile_snapshot_show_file" = "Show in folder";
+"lng_profile_snapshot_tme" = "Public data from t.me, {date}";
+"lng_profile_snapshot_tme_setting" = "Load public profile from t.me";
+"lng_profile_snapshot_tme_about" = "When a profile hides its photo or bio and has a public username, load the public t.me page (once a day at most, only when you open the profile). This makes a web request from your IP address.";
 // Keys finished

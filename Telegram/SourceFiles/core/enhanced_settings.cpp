@@ -322,6 +322,7 @@ namespace EnhancedSettings {
 		settings.insert(qsl("chat_archive"), false);
 		settings.insert(qsl("chat_archive_media_mb"), 0);
 		settings.insert(qsl("profile_snapshots"), true);
+		settings.insert(qsl("profile_tme_fallback"), true);
 
 		auto document = QJsonDocument();
 		document.setObject(settings);
@@ -380,6 +381,7 @@ namespace EnhancedSettings {
 		settings.insert(qsl("chat_archive"), GetEnhancedBool("chat_archive"));
 		settings.insert(qsl("chat_archive_media_mb"), GetEnhancedInt("chat_archive_media_mb"));
 		settings.insert(qsl("profile_snapshots"), GetEnhancedBool("profile_snapshots"));
+		settings.insert(qsl("profile_tme_fallback"), GetEnhancedBool("profile_tme_fallback"));
 
 		auto document = QJsonDocument();
 		document.setObject(settings);

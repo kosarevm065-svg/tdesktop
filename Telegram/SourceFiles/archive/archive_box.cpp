@@ -680,6 +680,22 @@ void SetupSettings(
 	}, container->lifetime());
 
 	Ui::AddDividerText(container, tr::lng_profile_snapshot_about());
+	Ui::AddSkip(container);
+
+	Settings::AddButtonWithIcon(
+		container,
+		tr::lng_profile_snapshot_tme_setting(),
+		st::settingsButtonNoIcon
+	)->toggleOn(
+		rpl::single(ProfileSnapshots::TmeEnabled())
+	)->toggledValue(
+	) | rpl::filter([](bool enabled) {
+		return (enabled != ProfileSnapshots::TmeEnabled());
+	}) | rpl::on_next([=](bool enabled) {
+		ProfileSnapshots::SetTmeEnabled(enabled);
+	}, container->lifetime());
+
+	Ui::AddDividerText(container, tr::lng_profile_snapshot_tme_about());
 }
 
 } // namespace ChatArchive

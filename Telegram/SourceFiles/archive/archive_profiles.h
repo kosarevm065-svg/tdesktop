@@ -24,9 +24,12 @@ class SessionController;
 namespace ProfileSnapshots {
 
 inline constexpr auto kOption = "profile_snapshots";
+inline constexpr auto kTmeOption = "profile_tme_fallback";
 
 [[nodiscard]] bool Enabled();
 void SetEnabled(bool enabled);
+[[nodiscard]] bool TmeEnabled();
+void SetTmeEnabled(bool enabled);
 
 void Start(not_null<Main::Session*> session);
 

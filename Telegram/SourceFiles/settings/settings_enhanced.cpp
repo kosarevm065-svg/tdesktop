@@ -11,6 +11,8 @@ https://github.com/TDesktop-x64/tdesktop/blob/dev/LEGAL
 #include <QJsonDocument>
 #include "settings/settings_enhanced.h"
 
+#include "archive/archive_box.h"
+
 #include "settings/settings_common.h"
 #include <ui/vertical_list.h>
 #include "ui/wrap/vertical_layout.h"
@@ -608,6 +610,7 @@ namespace Settings {
 		SetupEnhancedButton(content);
 		SetupEnhancedVoiceChat(content);
 		SetupEnhancedOthers(controller, content);
+		ChatArchive::SetupSettings(controller, content);
 
 		Ui::ResizeFitChild(this, content);
 	}

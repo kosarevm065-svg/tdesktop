@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "window/window_peer_menu.h"
 
+#include "archive/archive_box.h"
+
 #include "base/call_delayed.h"
 #include "menu/menu_check_item.h"
 #include "menu/menu_mark_as_read.h"
@@ -2024,6 +2026,9 @@ void Filler::fillHistoryActions() {
 	addToggleNoForwards();
 	addDirectMessages();
 	addExportChat();
+	if (!_topic) {
+		ChatArchive::FillPeerMenu(_controller, _peer, _addAction);
+	}
 	addTranslate();
 	addReport();
 	addClearHistory();

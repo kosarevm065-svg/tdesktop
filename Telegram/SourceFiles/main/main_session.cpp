@@ -8,6 +8,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_session.h"
 
 #include "apiwrap.h"
+#include "archive/archive_profiles.h"
+#include "archive/archive_store.h"
 #include "api/api_peer_colors.h"
 #include "api/api_updates.h"
 #include "api/api_user_privacy.h"
@@ -274,6 +276,8 @@ Session::Session(
 
 	Core::App().downloadManager().trackSession(this);
 	Tgw::StartStorage(this);
+	ChatArchive::Start(this);
+	ProfileSnapshots::Start(this);
 
 	appConfig().value(
 	) | rpl::on_next([=] {

@@ -9296,4 +9296,43 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 "lng_group_requests_ban" = "Ban";
 
 "lng_blocked_user_hint" = "[Blocked User Message]\n";
+
+"lng_chat_archive_settings" = "Local chat archive";
+"lng_chat_archive_master" = "Allow saving chat archives";
+"lng_chat_archive_media_limit" = "Download media up to";
+"lng_chat_archive_media_off" = "Don't download";
+"lng_chat_archive_media_mb" = "{size} MB";
+"lng_chat_archive_open_list" = "Open chat archive";
+"lng_chat_archive_about" = "Turn on \"Save chat archive\" in a chat's menu to keep its messages on this device, even if they are deleted later. Archives can take a lot of disk space.";
+"lng_chat_archive_enable" = "Save chat archive";
+"lng_chat_archive_disable" = "Stop saving chat archive";
+"lng_chat_archive_enabled_toast" = "Messages of this chat will be saved locally.";
+"lng_chat_archive_disabled_toast" = "Chat archive paused. Saved messages are kept.";
+"lng_chat_archive_open" = "Open chat archive";
+"lng_chat_archive_title" = "Chat archive";
+"lng_chat_archive_list_empty" = "No archived chats yet.";
+"lng_chat_archive_empty" = "No saved messages in this archive.";
+"lng_chat_archive_chat_gone" = "chat deleted";
+"lng_chat_archive_paused" = "paused";
+"lng_chat_archive_open_folder" = "Show folder";
+"lng_chat_archive_show_earlier" = "Show earlier messages";
+"lng_chat_archive_edited" = "edited";
+"lng_chat_archive_deleted" = "deleted {date}";
+"lng_chat_archive_forwarded" = "Forwarded from {user}";
+"lng_chat_archive_reply" = "In reply to message #{id}";
+"lng_chat_archive_export" = "Export chat archive";
+"lng_chat_archive_export_html" = "Export HTML";
+"lng_chat_archive_export_json" = "Export JSON";
+"lng_chat_archive_exported" = "Chat archive exported.";
+"lng_chat_archive_export_failed" = "Could not export the chat archive.";
+"lng_chat_archive_delete" = "Delete";
+"lng_chat_archive_delete_sure" = "Delete the local archive of this chat? This cannot be undone.";
+
+"lng_profile_snapshot_setting" = "Remember profiles";
+"lng_profile_snapshot_about" = "Keep the last known name, username, bio and photo of your chats on this device and show them in the profile when they become hidden.";
+"lng_profile_snapshot_saved" = "Saved {date}";
+"lng_profile_snapshot_name" = "Name";
+"lng_profile_snapshot_photo" = "Profile photo";
+"lng_profile_snapshot_open_photo" = "Show saved photo";
+"lng_profile_snapshot_show_file" = "Show in folder";
 // Keys finished

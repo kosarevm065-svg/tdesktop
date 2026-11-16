@@ -42,6 +42,7 @@ https://github.com/TDesktop-x64/tdesktop/blob/dev/LEGAL
 #include "apiwrap.h"
 #include "api/api_blocked_peers.h"
 #include "gift_tracker/gift_tracker_box.h"
+#include "history/admin_log/history_admin_log_local_ui.h"
 
 namespace Settings {
 
@@ -613,6 +614,7 @@ namespace Settings {
 		SetupEnhancedOthers(controller, content);
 		GiftTracker::SetupSettings(controller, content);
 		ChatArchive::SetupSettings(controller, content);
+		AdminLog::SetupLocalHistorySettings(controller, content);
 
 		Ui::ResizeFitChild(this, content);
 	}

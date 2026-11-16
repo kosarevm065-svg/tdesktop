@@ -1008,6 +1008,10 @@ PRIVATE
     history/admin_log/history_admin_log_inner.h
     history/admin_log/history_admin_log_item.cpp
     history/admin_log/history_admin_log_item.h
+    history/admin_log/history_admin_log_local.cpp
+    history/admin_log/history_admin_log_local.h
+    history/admin_log/history_admin_log_local_ui.cpp
+    history/admin_log/history_admin_log_local_ui.h
     history/admin_log/history_admin_log_section.cpp
     history/admin_log/history_admin_log_section.h
     history/view/controls/compose_controls_common.h

@@ -9,6 +9,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include "history/admin_log/history_admin_log_inner.h"
 #include "history/admin_log/history_admin_log_filter.h"
+#include "history/admin_log/history_admin_log_local_ui.h"
 #include "profile/profile_back_button.h"
 #include "core/shortcuts.h"
 #include "info/profile/info_profile_values.h"
@@ -370,6 +371,25 @@ Widget::Widget(
 	setupShortcuts();
 	setupSwipeReply();
 	setupScrollDownButton();
+	setupLocalHistoryBar(channel);
+}
+
+void Widget::setupLocalHistoryBar(not_null<ChannelData*> channel) {
+	_localBar = CreateLocalHistoryBar(this, channel);
+	if (!_localBar) {
+		return;
+	}
+	_localBar->show();
+	_fixedBarShadow->raise();
+	_localBar->heightValue(
+	) | rpl::on_next([=] {
+		updateControlsGeometry();
+		updateAdaptiveLayout();
+	}, _localBar->lifetime());
+}
+
+int Widget::topSkip() const {
+	return _fixedBar->height() + (_localBar ? _localBar->height() : 0);
 }
 
 void Widget::setupScrollDownButton() {
@@ -477,7 +497,7 @@ void Widget::updateAdaptiveLayout() {
 		controller()->adaptive().isOneColumn()
 			? 0
 			: st::lineWidth,
-		_fixedBar->height());
+		topSkip());
 }
 
 not_null<ChannelData*> Widget::channel() const {
@@ -608,6 +628,10 @@ void Widget::restoreState(not_null<SectionMemento*> memento) {
 }
 
 void Widget::resizeEvent(QResizeEvent *e) {
+	updateControlsGeometry();
+}
+
+void Widget::updateControlsGeometry() {
 	if (!width() || !height()) {
 		return;
 	}
@@ -618,11 +642,16 @@ void Widget::resizeEvent(QResizeEvent *e) {
 	const auto newScrollTop = _scroll->scrollTop() + delta;
 	_fixedBar->resizeToWidth(contentWidth);
 	_fixedBarShadow->resize(contentWidth, st::lineWidth);
+	if (_localBar) {
+		_localBar->resizeToWidth(contentWidth);
+		_localBar->moveToLeft(0, _fixedBar->height());
+	}
 
 	const auto bottom = height();
 	const auto scrollHeight = bottom
-		- _fixedBar->height()
+		- topSkip()
 		- _settingsFilter->height();
+	_scroll->move(0, topSkip());
 	const auto scrollSize = QSize(contentWidth, scrollHeight);
 	if (_scroll->size() != scrollSize) {
 		_scroll->resize(scrollSize);

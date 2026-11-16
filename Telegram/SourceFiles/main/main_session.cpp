@@ -65,6 +65,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "core/application.h"
 #include "gift_tracker/gift_tracker.h"
 #include "tgw/tgw_storage.h"
+#include "history/admin_log/history_admin_log_local.h"
 #include "ui/text/text_utilities.h"
 #include "ui/layers/generic_box.h"
 #include "styles/style_layers.h"
@@ -280,6 +281,7 @@ Session::Session(
 	GiftTracker::Start(this);
 	ChatArchive::Start(this);
 	ProfileSnapshots::Start(this);
+	AdminLog::StartLocalHistory(this);
 
 	appConfig().value(
 	) | rpl::on_next([=] {

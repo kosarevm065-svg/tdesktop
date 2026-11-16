@@ -66,9 +66,9 @@ jobs:
           sudo mdutil -a -i off
           sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-      - name: Libraries cache.
+      - name: Libraries cache restore.
         id: cache-libs
-        uses: actions/cache@v6
+        uses: actions/cache/restore@v6
         with:
           path: |
             Libraries
@@ -80,8 +80,21 @@ jobs:
         run: |
           ./$REPO_NAME/Telegram/build/prepare/mac.sh skip-release silent
 
+      # Keeps */local/src/* (e.g. the generated wallet_engine.cpp binding),
+      # which the app build compiles directly.
       - name: Free up some disk space.
-        run: find Libraries '(' '(' ! '(' -name '*.a' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -perm +111 ')' -type f ')' -o -empty ')' -delete
+        run: find Libraries '(' '(' ! '(' -name '*.a' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/local/src/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -perm +111 ')' -type f ')' -o -empty ')' -delete
+
+      # Saved right away, so a failed app build does not throw away
+      # the long library build.
+      - name: Libraries cache save.
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            Libraries
+            ThirdParty
+          key: ${{ steps.cache-libs.outputs.cache-primary-key }}
 
       - name: 64Gram build.
         env:

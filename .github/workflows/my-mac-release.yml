@@ -96,7 +96,7 @@ jobs:
 
       - name: Libraries.
         run: |
-          ./$REPO_NAME/Telegram/build/prepare/mac.sh skip-release silent
+          ./$REPO_NAME/Telegram/build/prepare/mac.sh silent
 
       # Keeps */local/src/* (e.g. the generated wallet_engine.cpp binding),
       # which the app build compiles directly.

@@ -12,6 +12,7 @@ https://github.com/TDesktop-x64/tdesktop/blob/dev/LEGAL
 #include "core/enhanced_settings.h"
 #include "core/file_utilities.h"
 #include "data/data_changes.h"
+#include "data/data_file_origin.h"
 #include "data/data_peer.h"
 #include "data/data_photo.h"
 #include "data/data_photo_media.h"
@@ -674,7 +675,7 @@ void AddSavedInfoLines(
 
 	using Flag = Data::PeerUpdate::Flag;
 	const auto peerId = peer->id;
-	const auto changes = [=](Flag flags) {
+	const auto changes = [=](Data::PeerUpdate::Flags flags) {
 		return rpl::merge(
 			peer->session().changes().peerFlagsValue(
 				peer,
@@ -710,7 +711,7 @@ void AddSavedInfoLines(
 			: Shown{ local.value, SavedLabel(title, local.date) };
 	};
 	const auto addPicked = [&](
-			Flag flags,
+			Data::PeerUpdate::Flags flags,
 			Fn<bool()> hidden,
 			Fn<QString()> title,
 			Field Snapshot::*tme,
